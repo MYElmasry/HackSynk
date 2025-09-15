@@ -13,14 +13,14 @@ if (isset($_SESSION['full_name'])) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HackSynk - Home</title>
-  <link rel="stylesheet" href="style1.css" />
+  <link rel="stylesheet" href="../assets/css/style1.css" />
   
 </head>
 <body>
 
   <div class="wrapper">
     <!-- Header -->
-    <?php include 'header.php'; ?>
+    <?php include '../includes/header.php'; ?>
 
 
     
@@ -30,7 +30,7 @@ if (isset($_SESSION['full_name'])) {
         <p>Join, Form Your Team, and Start Innovating in Hackathons.</p>
       </div>
       <div class="hero-image">
-        <img src="teamphoto.png" alt="Hackathon Illustration">
+        <img src="../assets/images/teamphoto.png" alt="Hackathon Illustration">
       </div>
     </section>
 
@@ -40,14 +40,9 @@ if (isset($_SESSION['full_name'])) {
     </section>
   </div>
 
-  <?php include 'footer.php'; ?>
+  <?php include '../includes/footer.php'; ?>
 
   <script>
-      console.log('Session user_id:', '<?php echo $_SESSION['user_id'] ?? 'not set'; ?>');
-        console.log('Session username:', '<?php echo $_SESSION['username'] ?? 'not set'; ?>');
-        console.log('Session full_name:', '<?php echo $_SESSION['full_name'] ?? 'not set'; ?>');
-        console.log('Session role:', '<?php echo $_SESSION['role'] ?? 'not set'; ?>');
-        
     function toggleDropdown() {
       document.getElementById("userDropdown").classList.toggle("show");
     }

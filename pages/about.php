@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // أول حرف من الاسم إذا مسجل
 $initial = '';
@@ -13,35 +12,11 @@ if (isset($_SESSION['full_name'])) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HackSynk - About Us</title>
-  <link rel="stylesheet" href="style1.css" />
+  <link rel="stylesheet" href="../assets/css/style1.css" />
 </head>
 <body>
 
-  <header>
-    <div class="logo">
-      <img src="logo.png" alt="HackSynk Logo">
-      <span class="brand">HackSynk</span>
-    </div>
-    <nav>
-      <a href="home.php">Home</a>
-      <a href="hackathons.php">Hackathons</a>
-      <a href="about.php" class="active">About Us</a>
-    </nav>
-    <div class="auth-buttons">
-      <?php if ($initial): ?>
-        <div class="user-menu">
-          <div class="user-icon" onclick="toggleDropdown()"><?php echo $initial; ?></div>
-          <div class="dropdown" id="userDropdown">
-            <a href="profile.php">Profile</a>
-            <a href="logout.php">Logout</a>
-          </div>
-        </div>
-      <?php else: ?>
-        <a href="login.php" class="signup">Log in</a>
-       
-      <?php endif; ?>
-    </div>
-  </header>
+  <?php include '../includes/header.php'; ?>
 
   <!-- About Section -->
   <section class="about">
@@ -75,11 +50,11 @@ if (isset($_SESSION['full_name'])) {
     </div>
 
     <div class="about-right">
-      <img src="teamphoto.png" alt="Hackathon Illustration">
+      <img src="../assets/images/teamphoto.png" alt="Hackathon Illustration">
     </div>
   </section>
 
-  <?php include 'footer.php'; ?>
+  <?php include '../includes/footer.php'; ?>
 
   <script>
     function toggleDropdown() {

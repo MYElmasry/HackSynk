@@ -1,10 +1,12 @@
 <?php
+session_start();
+
 // Import and run database setup
-require_once 'db_setup.php';
+require_once '../config/db_setup.php';
 setupDatabase();
 
 // Connect to the database
-require_once 'config.php';
+require_once '../config/config.php';
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +15,7 @@ require_once 'config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Your Account Type - HackSynk</title>
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
     <style>
         .account-type-container {
             display: flex;
@@ -75,11 +77,11 @@ require_once 'config.php';
     </style>
 </head>
 <body>
-    <?php include 'header.php'; ?>
+    <?php include '../includes/header.php'; ?>
     
     <div class="container">
         <div class="left-section">
-            <img src="teamphoto.png" alt="Sign Up Illustration" class="illustration">
+            <img src="../assets/images/teamphoto.png" alt="Sign Up Illustration" class="illustration">
         </div>
         
         <div class="right-section">
@@ -87,19 +89,19 @@ require_once 'config.php';
             <p style="text-align: center; color: #666; margin-bottom: 30px;">Choose your account type to get started</p>
             
             <div class="account-type-container">
-                <div class="account-type-card" onclick="window.location.href='p-reg.php'">
+                <div class="account-type-card" onclick="window.location.href='participant-register.php'">
                     <div class="icon">👨‍💻</div>
                     <h3>Participant</h3>
                     <p>Join hackathons, collaborate with teams, and showcase your skills. Perfect for developers, designers, and innovators.</p>
                 </div>
                 
-                <div class="account-type-card" onclick="window.location.href='o-reg.php'">
+                <div class="account-type-card" onclick="window.location.href='organizer-register.php'">
                     <div class="icon">🏢</div>
                     <h3>Organizer</h3>
                     <p>Create and manage hackathons, set up events, and connect with talented participants. For companies and organizations.</p>
                 </div>
                 
-                <div class="account-type-card" onclick="window.location.href='j-reg.php'">
+                <div class="account-type-card" onclick="window.location.href='judge-register.php'">
                     <div class="icon">⚖️</div>
                     <h3>Judge</h3>
                     <p>Evaluate projects, provide feedback, and help select winners. For industry experts and professionals.</p>
@@ -112,6 +114,6 @@ require_once 'config.php';
         </div>
     </div>
     
-    <?php include 'footer.php'; ?>
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>

@@ -7,30 +7,30 @@ if (isset($_SESSION['full_name'])) {
     $initial = strtoupper(substr($_SESSION['full_name'], 0, 1));
 }
 ?>
-<link rel="stylesheet" href="style1.css">
+<link rel="stylesheet" href="../assets/css/style1.css">
 
 <header>
   <div class="logo">
-    <img src="logo.png" alt="HackSynk Logo">
+    <img src="../assets/images/logo.png" alt="HackSynk Logo">
     <h2 class="brand">HackSynk</h2>
   </div>
 
   <nav>
-    <a href="home.php">Home</a>
-    <a href="Hackathons.php">Hackathons</a>
-    <a href="about.php">About Us</a>
+    <a href="../pages/home.php">Home</a>
+    <a href="../pages/hackathons.php">Hackathons</a>
+    <a href="../pages/about.php">About Us</a>
   </nav>
   <div class="auth-buttons">
     <?php if ($initial): ?>
       <div class="user-menu">
         <div class="user-icon" onclick="toggleDropdown()"><?php echo $initial; ?></div>
         <div class="dropdown" id="userDropdown">
-          <a href="profile.php">Profile</a>
-          <a href="logout.php">Logout</a>
+          <a href="../pages/profile.php">Profile</a>
+          <a href="../auth/logout.php">Logout</a>
         </div>
       </div>
     <?php else: ?>
-      <a href="login.php" class="signup">Log in</a>
+      <a href="../auth/login.php" class="signup">Log in</a>
     <?php endif; ?>
   </div>
   <script>

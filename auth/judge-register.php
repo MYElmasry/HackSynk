@@ -1,10 +1,10 @@
 <?php
 // Import and run database setup
-require_once 'db_setup.php';
+require_once '../config/db_setup.php';
 setupDatabase();
 
 // Connect to the database for registration
-require_once 'config.php';
+require_once '../config/config.php';
 
 $error = '';
 $success = '';
@@ -14,29 +14,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
-    $city_country = trim($_POST['city_country']);
-    $skills_expertise = trim($_POST['skills_expertise']);
+    $professional_title = trim($_POST['professional_title']);
     
-    if (empty($full_name) || empty($username) || empty($email) || empty($password)) {
+    if (empty($full_name) || empty($username) || empty($email) || empty($password) || empty($professional_title)) {
         $error = 'Please fill in all required fields';
     } elseif (strlen($password) < 6) {
         $error = 'Password must be at least 6 characters long';
     } else {
         try {
-            $stmt = $pdo->prepare("SELECT id FROM participants WHERE username = ?");
+            $stmt = $pdo->prepare("SELECT id FROM judges WHERE username = ?");
             $stmt->execute([$username]);
             if ($stmt->fetch()) {
                 $error = 'Username already exists';
             } else {
-                $stmt = $pdo->prepare("SELECT id FROM participants WHERE email = ?");
+                $stmt = $pdo->prepare("SELECT id FROM judges WHERE email = ?");
                 $stmt->execute([$email]);
                 if ($stmt->fetch()) {
                     $error = 'Email already exists';
                 } else {
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                     
-                    $stmt = $pdo->prepare("INSERT INTO participants (full_name, username, email, password, city_country, skills_expertise) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$full_name, $username, $email, $hashed_password, $city_country, $skills_expertise]);
+                    $stmt = $pdo->prepare("INSERT INTO judges (full_name, username, email, password, professional_title) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([$full_name, $username, $email, $hashed_password, $professional_title]);
                     
                     $success = 'Registration successful! You can now login.';
                     $_POST = array();
@@ -55,14 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Your Account - Participant</title>
-    <link rel="stylesheet" href="login.css">
+    <title>Create Your Account - Judge</title>
+    <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 <body>
-     <?php include 'header.php'; ?>
+     <?php include '../includes/header.php'; ?>
     <div class="container">
         <div class="left-section">
-            <img src="teamphoto.png" alt="Registration Illustration" class="illustration register-image">
+            <img src="../assets/images/teamphoto.png" alt="Registration Illustration" class="illustration register-image">
         </div>
         
         <div class="right-section">
@@ -98,13 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 
                 <div class="form-group">
-                    <input type="text" id="city_country" name="city_country" placeholder="city_country" value="<?php echo isset($_POST['city_country']) ? htmlspecialchars($_POST['city_country']) : ''; ?>">
-                </div>
-                
-                <div class="form-group">
-                    <input type="text" id="skills_expertise" name="skills_expertise" placeholder="skills_expertise" value="<?php echo isset($_POST['skills_expertise']) ? htmlspecialchars($_POST['skills_expertise']) : ''; ?>">
-                </div>
-             <p class="form-subtitle">Already have an account? <a href="login.php">Login</a></p>   
+                   <input type="text" id="professional_title" name="professional_title" placeholder="Professional Title"
+                   value="<?php echo isset($_POST['professional_title']) ? htmlspecialchars($_POST['professional_title']) : '';?>" required>
+            </div>
+            <p class="form-subtitle">Already have an account? <a href="login.php">Login</a></p>
                 <button type="submit" class="submit-btn">Register</button>
             </form>
         </div>
@@ -126,6 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     </script>
     
-    <?php include 'footer.php'; ?>
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>

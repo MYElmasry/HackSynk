@@ -1,18 +1,18 @@
 <?php
-include 'header.php';
+include '../includes/header.php';
 
 // Check if user is already logged in
 if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
-    header('Location: home.php');
+    header('Location: ../pages/home.php');
     exit();
 }
 
 // Import and run database setup
-require_once 'db_setup.php';
+require_once '../config/db_setup.php';
 setupDatabase();
 
 // Connect to the database for login
-require_once 'config.php';
+require_once '../config/config.php';
 
 $error = '';
 
@@ -53,11 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 // تحويل بناءً على نوع الحساب
                 if ($role === 'participant') {
-                    header('Location: home.php');
+                    header('Location: ../pages/home.php');
                 } elseif ($role === 'Organizer') {
-                    header('Location: home.php');
+                    header('Location: ../pages/home.php');
                 } elseif ($role === 'Judge') {
-                    header('Location: home.php');
+                    header('Location: ../pages/home.php');
                 }
                 exit();
             } else {
@@ -76,12 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 <body>
     <div class="container">
         <div class="left-section">
-            <img src="teamphoto.png" alt="Login Illustration" class="illustration">
+            <img src="../assets/images/teamphoto.png" alt="Login Illustration" class="illustration">
         </div>
         
         <div class="right-section">
@@ -128,6 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </script>
     
-    <?php include 'footer.php'; ?>
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>
