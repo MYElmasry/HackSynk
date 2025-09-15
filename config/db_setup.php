@@ -80,7 +80,7 @@ function setupDatabase() {
         if ($adminExists == 0) {
             $hashedPassword = password_hash('admin', PASSWORD_DEFAULT);
             $insertAdmin = $pdo_setup->prepare("INSERT INTO admins (full_name, username, email, password) VALUES (?, ?, ?, ?)");
-            $insertAdmin->execute(['Admin User', 'amin', 'admin@hacksynk.com', $hashedPassword]);
+            $insertAdmin->execute(['Admin User', 'admin', 'admin@hacksynk.com', $hashedPassword]);
         }
         
         // Close the setup connection
