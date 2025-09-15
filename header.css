@@ -1,0 +1,93 @@
+/* تأكد من إزالة أي مسافة من أعلى الصفحة */
+html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* هيدر بدون فراغ فوق */
+header {
+  margin: 0;
+  padding: 15px 60px;
+  background-color: #ebeae9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative; /* أو fixed لو تبيه ثابت */
+  top: 0;
+  z-index: 1000;
+}
+
+/* باقي التنسيق يظل كما هو */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 60px;
+  margin-right: 10px;
+}
+
+.brand {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #A66AFD;
+}
+
+nav {
+  display: flex;
+  gap: 40px;
+}
+
+nav a {
+  text-decoration: none;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #000000;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: #A66AFD;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* يخلي الشعار على اليسار */
+  padding: 20px 60px;
+  background-color: #EBE9EA;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.nav {
+  /* نخلي مساحة كبيرة للـ nav ونستخدم flex عشان نوسّط */
+  flex: 1;
+  display: flex;
+  justify-content: center; /* هنا توسيط الروابط بالضبط */
+  gap: 40px; /* المسافة بين الروابط */
+}
+
+.nav a {
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2em;
+  color: black;
+}
+
+.nav a:hover {
+  color: #A66AFD;
+}
+
