@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         try {
             $tables = [
-                'admin'        => 'admin',
+                'admins'       => 'admin',
                 'participants' => 'participant',
                 'organizers'   => 'Organizer',
                 'judges'       => 'Judge'

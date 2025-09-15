@@ -60,8 +60,8 @@ function setupDatabase() {
         
         $pdo_setup->exec($sql);
         
-        // Create admin table
-        $sql = "CREATE TABLE IF NOT EXISTS admin (
+        // Create admins table
+        $sql = "CREATE TABLE IF NOT EXISTS admins (
             id INT AUTO_INCREMENT PRIMARY KEY,
             full_name VARCHAR(100) NOT NULL,
             username VARCHAR(50) UNIQUE NOT NULL,
@@ -73,13 +73,13 @@ function setupDatabase() {
         $pdo_setup->exec($sql);
         
         // Insert default admin user if it doesn't exist
-        $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admin WHERE username = 'amin'");
+        $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'amin'");
         $checkAdmin->execute();
         $adminExists = $checkAdmin->fetchColumn();
         
         if ($adminExists == 0) {
             $hashedPassword = password_hash('admin', PASSWORD_DEFAULT);
-            $insertAdmin = $pdo_setup->prepare("INSERT INTO admin (full_name, username, email, password) VALUES (?, ?, ?, ?)");
+            $insertAdmin = $pdo_setup->prepare("INSERT INTO admins (full_name, username, email, password) VALUES (?, ?, ?, ?)");
             $insertAdmin->execute(['Admin User', 'amin', 'admin@hacksynk.com', $hashedPassword]);
         }
         
