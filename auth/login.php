@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         try {
             $tables = [
+                'admin'        => 'admin',
                 'participants' => 'participant',
                 'organizers'   => 'Organizer',
                 'judges'       => 'Judge'
@@ -52,7 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['role'] = $role;
 
                 // تحويل بناءً على نوع الحساب
-                if ($role === 'participant') {
+                if ($role === 'admin') {
+                    header('Location: ../pages/home.php');
+                } elseif ($role === 'participant') {
                     header('Location: ../pages/home.php');
                 } elseif ($role === 'Organizer') {
                     header('Location: ../pages/home.php');

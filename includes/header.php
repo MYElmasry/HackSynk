@@ -25,7 +25,7 @@ if (isset($_SESSION['full_name'])) {
       <div class="user-menu">
         <div class="user-icon" onclick="toggleDropdown()"><?php echo $initial; ?></div>
         <div class="dropdown" id="userDropdown">
-          <a href="../pages/profile.php">Profile</a>
+          <a href="../pages/dashboard.php">Dashboard</a>
           <a href="../auth/logout.php">Logout</a>
         </div>
       </div>
