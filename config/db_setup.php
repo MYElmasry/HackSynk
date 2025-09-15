@@ -73,7 +73,7 @@ function setupDatabase() {
         $pdo_setup->exec($sql);
         
         // Insert default admin user if it doesn't exist
-        $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'amin'");
+        $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'admin'");
         $checkAdmin->execute();
         $adminExists = $checkAdmin->fetchColumn();
         
