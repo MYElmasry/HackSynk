@@ -24,6 +24,8 @@ switch ($method) {
     case 'GET':
         if ($action === 'fetch') {
             fetchUsers();
+        } elseif ($action === 'profile') {
+            fetchProfile();
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Invalid action']);
@@ -42,6 +44,8 @@ switch ($method) {
     case 'PUT':
         if ($action === 'edit') {
             editUser();
+        } elseif ($action === 'profile') {
+            updateProfile();
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Invalid action']);
@@ -73,19 +77,19 @@ function fetchUsers() {
         $users = [];
         
         // Fetch participants
-        $stmt = $pdo->prepare("SELECT id, full_name, email, 'participant' as role, created_at FROM participants ORDER BY created_at DESC");
+        $stmt = $pdo->prepare("SELECT id, full_name, email, 'participant' as role, city_country, skills_expertise, created_at FROM participants ORDER BY created_at DESC");
         $stmt->execute();
         $participants = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $users = array_merge($users, $participants);
         
         // Fetch organizers
-        $stmt = $pdo->prepare("SELECT id, full_name, email, 'organizer' as role, created_at FROM organizers ORDER BY created_at DESC");
+        $stmt = $pdo->prepare("SELECT id, full_name, email, 'organizer' as role, organization_name, job_title_position, created_at FROM organizers ORDER BY created_at DESC");
         $stmt->execute();
         $organizers = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $users = array_merge($users, $organizers);
         
         // Fetch judges
-        $stmt = $pdo->prepare("SELECT id, full_name, email, 'judge' as role, created_at FROM judges ORDER BY created_at DESC");
+        $stmt = $pdo->prepare("SELECT id, full_name, email, 'judge' as role, professional_title, created_at FROM judges ORDER BY created_at DESC");
         $stmt->execute();
         $judges = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $users = array_merge($users, $judges);
@@ -365,6 +369,148 @@ function deleteUser() {
             echo json_encode([
                 'success' => false,
                 'error' => 'User not found'
+            ]);
+        }
+        
+    } catch(PDOException $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Database error: ' . $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Fetch current admin profile data
+ */
+function fetchProfile() {
+    global $pdo;
+    
+    try {
+        $user_id = $_SESSION['user_id'];
+        
+        // Fetch admin profile data
+        $stmt = $pdo->prepare("SELECT id, full_name, username, email FROM admins WHERE id = :user_id");
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        
+        $profile = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($profile) {
+            echo json_encode([
+                'success' => true,
+                'profile' => $profile
+            ]);
+        } else {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Profile not found'
+            ]);
+        }
+        
+    } catch(PDOException $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Database error: ' . $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Update admin profile
+ */
+function updateProfile() {
+    global $pdo;
+    
+    try {
+        // Get JSON input
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$input) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid JSON input']);
+            return;
+        }
+        
+        $user_id = $_SESSION['user_id'];
+        $full_name = $input['full_name'] ?? '';
+        $email = $input['email'] ?? '';
+        $username = $input['username'] ?? '';
+        $password = $input['password'] ?? '';
+        $confirm_password = $input['confirm_password'] ?? '';
+        
+        // Validate required fields
+        if (empty($full_name) || empty($email) || empty($username)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Full name, email, and username are required']);
+            return;
+        }
+        
+        // Validate password if provided
+        if (!empty($password)) {
+            if ($password !== $confirm_password) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Passwords do not match']);
+                return;
+            }
+            if (strlen($password) < 6) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Password must be at least 6 characters long']);
+                return;
+            }
+        }
+        
+        // Check if email or username already exists (excluding current user)
+        $checkStmt = $pdo->prepare("SELECT id FROM admins WHERE (email = :email OR username = :username) AND id != :user_id");
+        $checkStmt->bindParam(':email', $email);
+        $checkStmt->bindParam(':username', $username);
+        $checkStmt->bindParam(':user_id', $user_id);
+        $checkStmt->execute();
+        
+        if ($checkStmt->fetch()) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Email or username already exists']);
+            return;
+        }
+        
+        // Build update query
+        $sql = "UPDATE admins SET full_name = :full_name, email = :email, username = :username";
+        $params = [
+            ':full_name' => $full_name,
+            ':email' => $email,
+            ':username' => $username,
+            ':user_id' => $user_id
+        ];
+        
+        // Add password update if provided
+        if (!empty($password)) {
+            $sql .= ", password = :password";
+            $params[':password'] = password_hash($password, PASSWORD_DEFAULT);
+        }
+        
+        $sql .= " WHERE id = :user_id";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        
+        if ($stmt->rowCount() > 0) {
+            // Update session data
+            $_SESSION['full_name'] = $full_name;
+            $_SESSION['email'] = $email;
+            $_SESSION['username'] = $username;
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Profile updated successfully'
+            ]);
+        } else {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Profile not found'
             ]);
         }
         

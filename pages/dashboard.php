@@ -55,8 +55,7 @@ $initial = strtoupper(substr($user_name, 0, 1));
                         </div>
                         
                         <div class="profile-actions">
-                            <button class="btn btn-primary">Edit Profile</button>
-                            <button class="btn btn-secondary">Change Password</button>
+                            <button class="btn btn-primary" onclick="openEditProfileModal()">Edit Profile</button>
                         </div>
                     </div>
                 </div>
@@ -236,6 +235,47 @@ $initial = strtoupper(substr($user_name, 0, 1));
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('editUserModal')">Cancel</button>
                     <button type="submit" class="btn btn-primary">Update User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <span class="close" onclick="closeModal('editProfileModal')">&times;</span>
+            </div>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="profile_full_name">Full Name *</label>
+                    <input type="text" id="profile_full_name" name="full_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="profile_email">Email *</label>
+                    <input type="email" id="profile_email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="profile_username">Username *</label>
+                    <input type="text" id="profile_username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="profile_password">New Password (leave blank to keep current)</label>
+                    <input type="password" id="profile_password" name="password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="profile_confirm_password">Confirm New Password</label>
+                    <input type="password" id="profile_confirm_password" name="confirm_password">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
                 </div>
             </form>
         </div>

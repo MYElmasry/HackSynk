@@ -89,13 +89,23 @@ function displayUsers(users) {
         return;
     }
     
-    tableBody.innerHTML = users.map(user => `
+    tableBody.innerHTML = users.map(user => {
+        // Prepare role-specific data for the edit modal
+        let roleData = '';
+        if (user.role === 'participant') {
+            roleData = `'${user.city_country || ''}', '${user.skills_expertise || ''}'`;
+        } else if (user.role === 'organizer') {
+            roleData = `'${user.organization_name || ''}', '${user.job_title_position || ''}'`;
+        } else if (user.role === 'judge') {
+            roleData = `'${user.professional_title || ''}'`;
+        }
+        return `
         <tr>
             <td>${user.full_name}</td>
             <td>${user.email}</td>
             <td><span class="role-badge role-${user.role}">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span></td>
             <td class="actions">
-                <button class="btn-action btn-edit" onclick="openEditUserModal(${user.id}, '${user.role}', '${user.full_name}', '${user.email}')" title="Edit User">
+                <button class="btn-action btn-edit" onclick="openEditUserModal(${user.id}, '${user.role}', '${user.full_name}', '${user.email}', ${roleData})" title="Edit User">
                     <i class="fas fa-edit"></i>
                 </button>
                 <button class="btn-action btn-delete" onclick="deleteUser(${user.id}, '${user.role}', '${user.full_name}')" title="Delete User">
@@ -103,7 +113,8 @@ function displayUsers(users) {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // ===========================================
@@ -117,23 +128,70 @@ function openAddUserModal() {
     hideAllRoleFields('add');
 }
 
-function openEditUserModal(userId, role, fullName, email) {
+function openEditUserModal(userId, role, fullName, email, ...roleSpecificData) {
     document.getElementById('editUserModal').style.display = 'block';
     document.getElementById('edit_user_id').value = userId;
     document.getElementById('edit_role').value = role;
     document.getElementById('edit_full_name').value = fullName;
     document.getElementById('edit_email').value = email;
-    
     // Show role-specific fields
     hideAllRoleFields('edit');
     document.getElementById(`edit_${role}_fields`).style.display = 'block';
     
-    // Load additional user data for role-specific fields
-    loadUserDetails(userId, role);
+    // Populate role-specific fields based on role
+    if (role === 'participant') {
+        const [cityCountry, skillsExpertise] = roleSpecificData;
+        document.getElementById('edit_city_country').value = cityCountry || '';
+        document.getElementById('edit_skills_expertise').value = skillsExpertise || '';
+    } else if (role === 'organizer') {
+        const [organizationName, jobTitlePosition] = roleSpecificData;
+        document.getElementById('edit_organization_name').value = organizationName || '';
+        document.getElementById('edit_job_title_position').value = jobTitlePosition || '';
+    } else if (role === 'judge') {
+        const [professionalTitle] = roleSpecificData;
+        document.getElementById('edit_professional_title').value = professionalTitle || '';
+    }
 }
 
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
+}
+
+// Open edit profile modal
+function openEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'block';
+    loadProfileData();
+}
+
+// Load current profile data
+function loadProfileData() {
+    fetch('../api/users.php?action=profile')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const profile = data.profile;
+                document.getElementById('profile_full_name').value = profile.full_name;
+                document.getElementById('profile_email').value = profile.email;
+                document.getElementById('profile_username').value = profile.username;
+                // Clear password fields
+                document.getElementById('profile_password').value = '';
+                document.getElementById('profile_confirm_password').value = '';
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.error,
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while loading profile data',
+                icon: 'error'
+            });
+        });
 }
 
 function toggleRoleFields(type) {
@@ -152,12 +210,6 @@ function hideAllRoleFields(type) {
     });
 }
 
-// Load additional user details for editing
-function loadUserDetails(userId, role) {
-    // This would typically fetch additional user data from the API
-    // For now, we'll just show the fields based on role
-    console.log(`Loading details for ${role} user ${userId}`);
-}
 
 // ===========================================
 // FORM SUBMISSION HANDLERS
@@ -169,7 +221,6 @@ document.getElementById('addUserForm').addEventListener('submit', function(e) {
     
     const formData = new FormData(this);
     const userData = Object.fromEntries(formData.entries());
-    console.log(userData);
     
     fetch('../api/users.php?action=add', {
         method: 'POST',
@@ -245,6 +296,63 @@ document.getElementById('editUserForm').addEventListener('submit', function(e) {
         Swal.fire({
             title: 'Error!',
             text: 'An error occurred while updating the user',
+            icon: 'error'
+        });
+    });
+});
+
+// Edit profile function
+document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const profileData = Object.fromEntries(formData.entries());
+    
+    // Validate password confirmation
+    if (profileData.password && profileData.password !== profileData.confirm_password) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'Passwords do not match',
+            icon: 'error'
+        });
+        return;
+    }
+    
+    // Remove confirm_password from data sent to server
+    delete profileData.confirm_password;
+    
+    fetch('../api/users.php?action=profile', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Profile updated successfully',
+                icon: 'success',
+                timer: 2000
+            });
+            closeModal('editProfileModal');
+            // Refresh the page to update the profile display
+            location.reload();
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: data.error,
+                icon: 'error'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while updating the profile',
             icon: 'error'
         });
     });
