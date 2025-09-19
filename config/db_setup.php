@@ -72,6 +72,23 @@ function setupDatabase() {
         
         $pdo_setup->exec($sql);
         
+        // Create hackathons table
+        $sql = "CREATE TABLE IF NOT EXISTS hackathons (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            description TEXT,
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            location VARCHAR(200),
+            rules TEXT,
+            prizes TEXT,
+            image_path VARCHAR(500),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )";
+        
+        $pdo_setup->exec($sql);
+        
         // Insert default admin user if it doesn't exist
         $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'admin'");
         $checkAdmin->execute();

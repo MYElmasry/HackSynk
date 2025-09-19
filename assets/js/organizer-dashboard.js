@@ -52,6 +52,7 @@ function showProfile() {
 function showHackathonManagement() {
     hideAllSections();
     document.getElementById('hackathons-section').style.display = 'block';
+    loadHackathons();
 }
 
 // Function to show judge assignment section
@@ -114,12 +115,7 @@ function showPlaceholder(title, message) {
 
 // Create hackathon function
 function createHackathon() {
-    Swal.fire({
-        title: 'Create New Hackathon',
-        text: 'This feature will be implemented soon!',
-        icon: 'info',
-        confirmButtonText: 'OK'
-    });
+    openCreateHackathonModal();
 }
 
 // Manage hackathons function
@@ -361,6 +357,289 @@ window.onclick = function(event) {
     });
 }
 
+// ===========================================
+// HACKATHON MANAGEMENT FUNCTIONS
+// ===========================================
+
+// Open create hackathon modal
+function openCreateHackathonModal() {
+    document.getElementById('createHackathonModal').style.display = 'block';
+    // Reset form
+    document.getElementById('createHackathonForm').reset();
+}
+
+// Load hackathons from API
+function loadHackathons() {
+    const hackathonsList = document.getElementById('hackathons-list');
+    
+    // Show loading state
+    hackathonsList.innerHTML = `
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading hackathons...</p>
+        </div>
+    `;
+    
+    fetch('../api/hackathons.php?action=list')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayHackathons(data.data);
+            } else {
+                hackathonsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No Hackathons Found</h3>
+                        <p>You haven't created any hackathons yet.</p>
+                        <button class="btn btn-primary" onclick="openCreateHackathonModal()">
+                            <i class="fas fa-plus"></i> Create Your First Hackathon
+                        </button>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hackathonsList.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error Loading Hackathons</h3>
+                    <p>There was an error loading your hackathons. Please try again.</p>
+                    <button class="btn btn-primary" onclick="loadHackathons()">Retry</button>
+                </div>
+            `;
+        });
+}
+
+// Display hackathons in the UI
+function displayHackathons(hackathons) {
+    const hackathonsList = document.getElementById('hackathons-list');
+    
+    if (hackathons.length === 0) {
+        hackathonsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No Hackathons Found</h3>
+                <p>You haven't created any hackathons yet.</p>
+                <button class="btn btn-primary" onclick="openCreateHackathonModal()">
+                    <i class="fas fa-plus"></i> Create Your First Hackathon
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    const hackathonsHTML = hackathons.map(hackathon => {
+        const startDate = new Date(hackathon.start_date).toLocaleDateString();
+        const endDate = new Date(hackathon.end_date).toLocaleDateString();
+        const currentDate = new Date();
+        const isUpcoming = new Date(hackathon.start_date) > currentDate;
+        const isOngoing = new Date(hackathon.start_date) <= currentDate && new Date(hackathon.end_date) >= currentDate;
+        const isCompleted = new Date(hackathon.end_date) < currentDate;
+        
+        let statusClass = 'status-upcoming';
+        let statusText = 'Upcoming';
+        
+        if (isOngoing) {
+            statusClass = 'status-ongoing';
+            statusText = 'Ongoing';
+        } else if (isCompleted) {
+            statusClass = 'status-completed';
+            statusText = 'Completed';
+        }
+        
+        return `
+            <div class="hackathon-card">
+                <div class="hackathon-image">
+                    ${hackathon.image_path ? 
+                        `<img src="../${hackathon.image_path}" alt="${hackathon.name}" onerror="this.style.display='none'">` : 
+                        `<div class="default-image"><i class="fas fa-calendar-alt"></i></div>`
+                    }
+                </div>
+                <div class="hackathon-content">
+                    <div class="hackathon-header">
+                        <h3>${hackathon.name}</h3>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <p class="hackathon-description">${hackathon.description.substring(0, 150)}${hackathon.description.length > 150 ? '...' : ''}</p>
+                    <div class="hackathon-details">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${hackathon.location}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${startDate} - ${endDate}</span>
+                        </div>
+                    </div>
+                    <div class="hackathon-actions">
+                        <button class="btn btn-secondary" onclick="viewHackathon(${hackathon.id})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-primary" onclick="editHackathon(${hackathon.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteHackathon(${hackathon.id}, '${hackathon.name}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    hackathonsList.innerHTML = hackathonsHTML;
+}
+
+// View hackathon details
+function viewHackathon(id) {
+    fetch(`../api/hackathons.php?action=get&id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const hackathon = data.data;
+                const startDate = new Date(hackathon.start_date).toLocaleDateString();
+                const endDate = new Date(hackathon.end_date).toLocaleDateString();
+                
+                Swal.fire({
+                    title: hackathon.name,
+                    html: `
+                        <div style="text-align: left;">
+                            <p><strong>Description:</strong><br>${hackathon.description}</p>
+                            <p><strong>Location:</strong> ${hackathon.location}</p>
+                            <p><strong>Dates:</strong> ${startDate} - ${endDate}</p>
+                            ${hackathon.rules ? `<p><strong>Rules:</strong><br>${hackathon.rules}</p>` : ''}
+                            ${hackathon.prizes ? `<p><strong>Prizes:</strong><br>${hackathon.prizes}</p>` : ''}
+                        </div>
+                    `,
+                    imageUrl: hackathon.image_path ? `../${hackathon.image_path}` : undefined,
+                    imageWidth: 300,
+                    imageHeight: 200,
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    confirmButtonText: 'Edit',
+                    cancelButtonText: 'Close'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        editHackathon(id);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message,
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while loading hackathon details',
+                icon: 'error'
+            });
+        });
+}
+
+// Edit hackathon
+function editHackathon(id) {
+    fetch(`../api/hackathons.php?action=get&id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const hackathon = data.data;
+                
+                // Populate edit form
+                document.getElementById('edit_hackathon_id').value = hackathon.id;
+                document.getElementById('edit_hackathon_name').value = hackathon.name;
+                document.getElementById('edit_hackathon_description').value = hackathon.description;
+                document.getElementById('edit_hackathon_start_date').value = hackathon.start_date;
+                document.getElementById('edit_hackathon_end_date').value = hackathon.end_date;
+                document.getElementById('edit_hackathon_location').value = hackathon.location;
+                document.getElementById('edit_hackathon_rules').value = hackathon.rules || '';
+                document.getElementById('edit_hackathon_prizes').value = hackathon.prizes || '';
+                
+                // Show current image if exists
+                const currentImagePreview = document.getElementById('current_image_preview');
+                const currentImage = document.getElementById('current_image');
+                if (hackathon.image_path) {
+                    currentImage.src = `../${hackathon.image_path}`;
+                    currentImagePreview.style.display = 'block';
+                } else {
+                    currentImagePreview.style.display = 'none';
+                }
+                
+                // Open edit modal
+                document.getElementById('editHackathonModal').style.display = 'block';
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message,
+                    icon: 'error'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while loading hackathon data',
+                icon: 'error'
+            });
+        });
+}
+
+// Delete hackathon
+function deleteHackathon(id, name) {
+    Swal.fire({
+        title: 'Delete Hackathon',
+        text: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('id', id);
+            
+            fetch('../api/hackathons.php?action=delete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: 'Hackathon has been deleted successfully.',
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    loadHackathons(); // Reload the list
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while deleting the hackathon',
+                    icon: 'error'
+                });
+            });
+        }
+    });
+}
+
 // Initialize dashboard on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Show profile section by default
@@ -375,4 +654,94 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileToggle.onclick = toggleMobileMenu;
         header.appendChild(mobileToggle);
     }
+    
+    // Add hackathon form handlers
+    setupHackathonFormHandlers();
 });
+
+// Setup hackathon form handlers
+function setupHackathonFormHandlers() {
+    // Create hackathon form
+    const createForm = document.getElementById('createHackathonForm');
+    if (createForm) {
+        createForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('../api/hackathons.php?action=create', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Hackathon created successfully',
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    closeModal('createHackathonModal');
+                    loadHackathons(); // Reload the list
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while creating the hackathon',
+                    icon: 'error'
+                });
+            });
+        });
+    }
+    
+    // Edit hackathon form
+    const editForm = document.getElementById('editHackathonForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('../api/hackathons.php?action=update', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Hackathon updated successfully',
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    closeModal('editHackathonModal');
+                    loadHackathons(); // Reload the list
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while updating the hackathon',
+                    icon: 'error'
+                });
+            });
+        });
+    }
+}

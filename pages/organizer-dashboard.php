@@ -126,14 +126,19 @@ $initial = strtoupper(substr($user_name, 0, 1));
                     <div id="hackathons-section" class="section" style="display: none;">
                         <div class="section-header">
                             <h2>Create/Manage Hackathons</h2>
+                            <button class="btn btn-primary" onclick="openCreateHackathonModal()">
+                                <i class="fas fa-plus"></i> Create New Hackathon
+                            </button>
                         </div>
                         
-                        <div class="placeholder-content">
-                            <div class="placeholder-icon">
-                                <i class="fas fa-calendar-plus"></i>
+                        <div class="hackathons-container">
+                            <div id="hackathons-list" class="hackathons-list">
+                                <!-- Hackathons will be loaded here dynamically -->
+                                <div class="loading-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading hackathons...</p>
+                                </div>
                             </div>
-                            <h3>Coming Soon</h3>
-                            <p>Hackathon creation and management interface will be implemented here.</p>
                         </div>
                     </div>
 
@@ -229,6 +234,134 @@ $initial = strtoupper(substr($user_name, 0, 1));
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
                     <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Hackathon Modal -->
+    <div id="createHackathonModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Create New Hackathon</h3>
+                <span class="close" onclick="closeModal('createHackathonModal')">&times;</span>
+            </div>
+            <form id="createHackathonForm" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hackathon_name">Hackathon Name *</label>
+                        <input type="text" id="hackathon_name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hackathon_location">Location *</label>
+                        <input type="text" id="hackathon_location" name="location" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hackathon_description">Description *</label>
+                    <textarea id="hackathon_description" name="description" rows="4" required placeholder="Describe your hackathon..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hackathon_start_date">Start Date *</label>
+                        <input type="date" id="hackathon_start_date" name="start_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hackathon_end_date">End Date *</label>
+                        <input type="date" id="hackathon_end_date" name="end_date" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hackathon_rules">Rules</label>
+                    <textarea id="hackathon_rules" name="rules" rows="3" placeholder="Enter hackathon rules and guidelines..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hackathon_prizes">Prizes</label>
+                    <textarea id="hackathon_prizes" name="prizes" rows="3" placeholder="Describe prizes and rewards..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hackathon_image">Hackathon Image</label>
+                    <input type="file" id="hackathon_image" name="image" accept="image/*">
+                    <small class="form-help">Upload an image for your hackathon (optional)</small>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createHackathonModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Hackathon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Hackathon Modal -->
+    <div id="editHackathonModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Edit Hackathon</h3>
+                <span class="close" onclick="closeModal('editHackathonModal')">&times;</span>
+            </div>
+            <form id="editHackathonForm" enctype="multipart/form-data">
+                <input type="hidden" id="edit_hackathon_id" name="id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_hackathon_name">Hackathon Name *</label>
+                        <input type="text" id="edit_hackathon_name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_hackathon_location">Location *</label>
+                        <input type="text" id="edit_hackathon_location" name="location" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_hackathon_description">Description *</label>
+                    <textarea id="edit_hackathon_description" name="description" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_hackathon_start_date">Start Date *</label>
+                        <input type="date" id="edit_hackathon_start_date" name="start_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_hackathon_end_date">End Date *</label>
+                        <input type="date" id="edit_hackathon_end_date" name="end_date" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_hackathon_rules">Rules</label>
+                    <textarea id="edit_hackathon_rules" name="rules" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_hackathon_prizes">Prizes</label>
+                    <textarea id="edit_hackathon_prizes" name="prizes" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_hackathon_image">Hackathon Image</label>
+                    <input type="file" id="edit_hackathon_image" name="image" accept="image/*">
+                    <small class="form-help">Upload a new image to replace the current one</small>
+                    <div id="current_image_preview" class="current-image-preview" style="display: none;">
+                        <p>Current image:</p>
+                        <img id="current_image" src="" alt="Current hackathon image" style="max-width: 200px; max-height: 150px;">
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editHackathonModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Hackathon</button>
                 </div>
             </form>
         </div>
