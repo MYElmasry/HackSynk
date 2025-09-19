@@ -7,9 +7,25 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Check if user is an admin
+if ($_SESSION['role'] !== 'admin') {
+    // Redirect to appropriate dashboard based on role
+    $user_role = $_SESSION['role'] ?? 'participant';
+    if ($user_role === 'Organizer') {
+        header('Location: organizer-dashboard.php');
+    } elseif ($user_role === 'participant') {
+        header('Location: participant-dashboard.php');
+    } elseif ($user_role === 'Judge') {
+        header('Location: judge-dashboard.php');
+    } else {
+        header('Location: ../pages/home.php');
+    }
+    exit();
+}
+
 // Get user info
 $user_name = $_SESSION['full_name'] ?? 'User';
-$user_role = $_SESSION['role'] ?? 'participant';
+$user_role = $_SESSION['role'] ?? 'admin';
 $initial = strtoupper(substr($user_name, 0, 1));
 ?>
 <!DOCTYPE html>
