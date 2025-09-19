@@ -58,7 +58,8 @@ function showHackathonManagement() {
 // Function to show judge assignment section
 function showJudgeAssignment() {
     hideAllSections();
-    showPlaceholder('Judge Assignment', 'Assign judges to your hackathons here.');
+    document.getElementById('judge-assignment-section').style.display = 'block';
+    loadJudgeAssignments();
 }
 
 // Helper function to hide all sections
@@ -78,6 +79,12 @@ function hideAllSections() {
     const dashboardOverview = document.getElementById('dashboard-overview');
     if (dashboardOverview) {
         dashboardOverview.style.display = 'none';
+    }
+    
+    // Hide judge assignment section
+    const judgeAssignmentSection = document.getElementById('judge-assignment-section');
+    if (judgeAssignmentSection) {
+        judgeAssignmentSection.style.display = 'none';
     }
 }
 
@@ -657,6 +664,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add hackathon form handlers
     setupHackathonFormHandlers();
+    
+    // Add judge assignment form handler
+    setupAssignJudgeFormHandler();
 });
 
 // Setup hackathon form handlers
@@ -742,6 +752,345 @@ function setupHackathonFormHandlers() {
                     icon: 'error'
                 });
             });
+        });
+    }
+}
+
+// ===========================================
+// JUDGE ASSIGNMENT FUNCTIONS
+// ===========================================
+
+// Open assign judge modal
+function openAssignJudgeModal() {
+    document.getElementById('assignJudgeModal').style.display = 'block';
+    loadHackathonsForSelect();
+    setupJudgeAutocomplete();
+}
+
+// Load hackathons for select dropdown
+function loadHackathonsForSelect() {
+    const select = document.getElementById('hackathon_select');
+    
+    fetch('../api/hackathons.php?action=list')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear existing options except the first one
+                select.innerHTML = '<option value="">Choose a hackathon...</option>';
+                
+                data.data.forEach(hackathon => {
+                    const option = document.createElement('option');
+                    option.value = hackathon.id;
+                    option.textContent = hackathon.name;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading hackathons:', error);
+        });
+}
+
+// Setup judge name autocomplete
+function setupJudgeAutocomplete() {
+    const judgeNameInput = document.getElementById('judge_name');
+    const judgeEmailInput = document.getElementById('judge_email');
+    const suggestionsDiv = document.getElementById('judge_suggestions');
+    let searchTimeout;
+
+    judgeNameInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchJudges(query);
+        }, 300);
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!judgeNameInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+}
+
+// Search judges
+function searchJudges(query) {
+    const suggestionsDiv = document.getElementById('judge_suggestions');
+    
+    fetch(`../api/judges.php?action=search&q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                displayJudgeSuggestions(data.data);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error searching judges:', error);
+            suggestionsDiv.style.display = 'none';
+        });
+}
+
+// Display judge suggestions
+function displayJudgeSuggestions(judges) {
+    const suggestionsDiv = document.getElementById('judge_suggestions');
+    
+    const suggestionsHTML = judges.map(judge => `
+        <div class="suggestion-item" onclick="selectJudge('${judge.full_name}', '${judge.email}', '${judge.professional_title || ''}')">
+            <div class="suggestion-name">${judge.full_name}</div>
+            <div class="suggestion-email">${judge.email}</div>
+        </div>
+    `).join('');
+    
+    suggestionsDiv.innerHTML = suggestionsHTML;
+    suggestionsDiv.style.display = 'block';
+}
+
+// Select judge from suggestions
+function selectJudge(name, email, title) {
+    document.getElementById('judge_name').value = name;
+    document.getElementById('judge_email').value = email;
+    document.getElementById('judge_suggestions').style.display = 'none';
+}
+
+// Load judge assignments
+function loadJudgeAssignments() {
+    const assignmentsList = document.getElementById('judge-assignments-list');
+    
+    // Show loading state
+    assignmentsList.innerHTML = `
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading judge assignments...</p>
+        </div>
+    `;
+    
+    fetch('../api/judges.php?action=assignments')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayJudgeAssignments(data.data);
+            } else {
+                assignmentsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-gavel"></i>
+                        <h3>No Judge Assignments</h3>
+                        <p>No judges have been assigned to hackathons yet.</p>
+                        <button class="btn btn-primary" onclick="openAssignJudgeModal()">
+                            <i class="fas fa-plus"></i> Assign First Judge
+                        </button>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            assignmentsList.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error Loading Assignments</h3>
+                    <p>There was an error loading judge assignments. Please try again.</p>
+                    <button class="btn btn-primary" onclick="loadJudgeAssignments()">Retry</button>
+                </div>
+            `;
+        });
+}
+
+// Display judge assignments
+function displayJudgeAssignments(assignments) {
+    const assignmentsList = document.getElementById('judge-assignments-list');
+    
+    if (assignments.length === 0) {
+        assignmentsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-gavel"></i>
+                <h3>No Judge Assignments</h3>
+                <p>No judges have been assigned to hackathons yet.</p>
+                <button class="btn btn-primary" onclick="openAssignJudgeModal()">
+                    <i class="fas fa-plus"></i> Assign First Judge
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    const assignmentsHTML = `
+        <div class="assignments-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judge Name</th>
+                        <th>Hackathon Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${assignments.map(assignment => `
+                        <tr>
+                            <td>${assignment.judge_name}</td>
+                            <td>${assignment.hackathon_name}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="removeJudgeAssignment(${assignment.assignment_id}, '${assignment.judge_name}', '${assignment.hackathon_name}')">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    assignmentsList.innerHTML = assignmentsHTML;
+}
+
+// Remove judge assignment
+function removeJudgeAssignment(assignmentId, judgeName, hackathonName) {
+    Swal.fire({
+        title: 'Remove Assignment',
+        text: `Are you sure you want to remove ${judgeName} from ${hackathonName}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formData = new FormData();
+            formData.append('assignment_id', assignmentId);
+            
+            fetch('../api/judges.php?action=remove_assignment', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Removed!',
+                        text: 'Judge assignment has been removed successfully.',
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    loadJudgeAssignments(); // Reload the list
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while removing the assignment',
+                    icon: 'error'
+                });
+            });
+        }
+    });
+}
+
+// Setup assign judge form handler
+function setupAssignJudgeFormHandler() {
+    const assignJudgeForm = document.getElementById('assignJudgeForm');
+    if (assignJudgeForm) {
+        assignJudgeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const judgeName = formData.get('judge_name');
+            const judgeEmail = formData.get('judge_email');
+            const hackathonId = formData.get('hackathon_id');
+            
+            // First, check if judge exists or create new one
+            fetch('../api/judges.php?action=search&q=' + encodeURIComponent(judgeName))
+                .then(response => response.json())
+                .then(data => {
+                    let judgeId;
+                    
+                    if (data.success && data.data.length > 0) {
+                        // Judge exists, use existing ID
+                        judgeId = data.data[0].id;
+                    } else {
+                        // Create new judge
+                        return fetch('../api/judges.php?action=create', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                full_name: judgeName,
+                                email: judgeEmail,
+                                professional_title: ''
+                            })
+                        });
+                    }
+                    return Promise.resolve({ success: true, data: { id: judgeId } });
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return response;
+                })
+                .then(data => {
+                    if (data.success) {
+                        const judgeId = data.data.id;
+                        
+                        // Now assign judge to hackathon
+                        return fetch('../api/judges.php?action=assign', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                judge_id: judgeId,
+                                hackathon_id: hackathonId
+                            })
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to create/find judge');
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Judge assigned successfully',
+                            icon: 'success',
+                            timer: 2000
+                        });
+                        closeModal('assignJudgeModal');
+                        loadJudgeAssignments(); // Reload the list
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message,
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while assigning the judge',
+                        icon: 'error'
+                    });
+                });
         });
     }
 }

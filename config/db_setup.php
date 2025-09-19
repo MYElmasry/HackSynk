@@ -89,6 +89,19 @@ function setupDatabase() {
         
         $pdo_setup->exec($sql);
         
+        // Create judge_hackathons junction table
+        $sql = "CREATE TABLE IF NOT EXISTS judge_hackathons (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            judge_id INT NOT NULL,
+            hackathon_id INT NOT NULL,
+            assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (judge_id) REFERENCES judges(id) ON DELETE CASCADE,
+            FOREIGN KEY (hackathon_id) REFERENCES hackathons(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_judge_hackathon (judge_id, hackathon_id)
+        )";
+        
+        $pdo_setup->exec($sql);
+        
         // Insert default admin user if it doesn't exist
         $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'admin'");
         $checkAdmin->execute();

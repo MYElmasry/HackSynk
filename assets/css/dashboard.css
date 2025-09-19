@@ -1027,3 +1027,224 @@ textarea::placeholder {
         width: 100%;
     }
 }
+
+/* ===========================================
+   JUDGE ASSIGNMENT STYLES
+   =========================================== */
+
+/* Judge Assignment Section */
+.judge-assignments-container {
+    margin-top: 20px;
+}
+
+.assignments-list {
+    margin-top: 20px;
+}
+
+.assignments-table {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.assignments-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.assignments-table th,
+.assignments-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.assignments-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.assignments-table tr:hover {
+    background: #f8f9fa;
+}
+
+.assignments-table .btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+/* Judge Suggestions Dropdown */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background: #f8f9fa;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.suggestion-email {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Form Group with Relative Position for Suggestions */
+.form-group {
+    position: relative;
+}
+
+/* Judge Assignment Modal Specific Styles */
+#assignJudgeModal .modal-content {
+    max-width: 500px;
+}
+
+#assignJudgeModal .form-group {
+    margin-bottom: 20px;
+}
+
+#assignJudgeModal label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+#assignJudgeModal input,
+#assignJudgeModal select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+#assignJudgeModal input:focus,
+#assignJudgeModal select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Empty State for Judge Assignments */
+.assignments-list .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.assignments-list .empty-state i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.assignments-list .empty-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.assignments-list .empty-state p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Loading State */
+.assignments-list .loading-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.assignments-list .loading-state i {
+    font-size: 24px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.assignments-list .loading-state p {
+    color: #666;
+}
+
+/* Error State */
+.assignments-list .error-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.assignments-list .error-state i {
+    font-size: 48px;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.assignments-list .error-state h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.assignments-list .error-state p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Mobile Responsive for Judge Assignments */
+@media (max-width: 768px) {
+    .assignments-table {
+        overflow-x: auto;
+    }
+    
+    .assignments-table table {
+        min-width: 600px;
+    }
+    
+    .assignments-table th,
+    .assignments-table td {
+        padding: 10px 8px;
+        font-size: 14px;
+    }
+    
+    .suggestions-dropdown {
+        position: fixed;
+        top: auto;
+        left: 10px;
+        right: 10px;
+        max-height: 150px;
+    }
+}

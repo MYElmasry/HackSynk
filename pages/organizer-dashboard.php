@@ -7,21 +7,21 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Check if user is an organizer
-// if ($_SESSION['role'] !== 'Organizer') {
-//     // Redirect to appropriate dashboard based on role
-//     $user_role = $_SESSION['role'] ?? 'admin';
-//     if ($user_role === 'admin') {
-//         header('Location: dashboard.php');
-//     } elseif ($user_role === 'participant') {
-//         header('Location: participant-dashboard.php');
-//     } elseif ($user_role === 'Judge') {
-//         header('Location: judge-dashboard.php');
-//     } else {
-//         header('Location: ../pages/home.php');
-//     }
-//     exit();
-// }
+Check if user is an organizer
+if ($_SESSION['role'] !== 'Organizer') {
+    // Redirect to appropriate dashboard based on role
+    $user_role = $_SESSION['role'] ?? 'admin';
+    if ($user_role === 'admin') {
+        header('Location: dashboard.php');
+    } elseif ($user_role === 'participant') {
+        header('Location: participant-dashboard.php');
+    } elseif ($user_role === 'Judge') {
+        header('Location: judge-dashboard.php');
+    } else {
+        header('Location: ../pages/home.php');
+    }
+    exit();
+}
 
 // Get user info
 $user_name = $_SESSION['full_name'] ?? 'User';
@@ -137,6 +137,26 @@ $initial = strtoupper(substr($user_name, 0, 1));
                                 <div class="loading-state">
                                     <i class="fas fa-spinner fa-spin"></i>
                                     <p>Loading hackathons...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Judge Assignment Section -->
+                    <div id="judge-assignment-section" class="section" style="display: none;">
+                        <div class="section-header">
+                            <h2>Assign Judges</h2>
+                            <button class="btn btn-primary" onclick="openAssignJudgeModal()">
+                                <i class="fas fa-plus"></i> Assign New Judge
+                            </button>
+                        </div>
+                        
+                        <div class="judge-assignments-container">
+                            <div id="judge-assignments-list" class="assignments-list">
+                                <!-- Judge assignments will be loaded here dynamically -->
+                                <div class="loading-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading judge assignments...</p>
                                 </div>
                             </div>
                         </div>
@@ -362,6 +382,41 @@ $initial = strtoupper(substr($user_name, 0, 1));
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('editHackathonModal')">Cancel</button>
                     <button type="submit" class="btn btn-primary">Update Hackathon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign Judge Modal -->
+    <div id="assignJudgeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign New Judge</h3>
+                <span class="close" onclick="closeModal('assignJudgeModal')">&times;</span>
+            </div>
+            <form id="assignJudgeForm">
+                <div class="form-group">
+                    <label for="judge_name">Judge Name *</label>
+                    <input type="text" id="judge_name" name="judge_name" required placeholder="Type judge name or select from existing...">
+                    <div id="judge_suggestions" class="suggestions-dropdown" style="display: none;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="judge_email">Email *</label>
+                    <input type="email" id="judge_email" name="judge_email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hackathon_select">Select Hackathon *</label>
+                    <select id="hackathon_select" name="hackathon_id" required>
+                        <option value="">Choose a hackathon...</option>
+                        <!-- Hackathons will be loaded here dynamically -->
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('assignJudgeModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign Judge</button>
                 </div>
             </form>
         </div>
