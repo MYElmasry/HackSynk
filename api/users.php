@@ -389,9 +389,36 @@ function fetchProfile() {
     
     try {
         $user_id = $_SESSION['user_id'];
+        $user_role = $_SESSION['role'] ?? 'admin';
         
-        // Fetch admin profile data
-        $stmt = $pdo->prepare("SELECT id, full_name, username, email FROM admins WHERE id = :user_id");
+        // Determine table based on user role
+        $table = '';
+        $fields = 'id, full_name, username, email';
+        
+        switch ($user_role) {
+            case 'admin':
+                $table = 'admins';
+                break;
+            case 'Organizer':
+                $table = 'organizers';
+                $fields .= ', organization_name, job_title_position';
+                break;
+            case 'participant':
+                $table = 'participants';
+                $fields .= ', city_country, skills_expertise';
+                break;
+            case 'Judge':
+                $table = 'judges';
+                $fields .= ', professional_title';
+                break;
+            default:
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Invalid user role']);
+                return;
+        }
+        
+        // Fetch profile data
+        $stmt = $pdo->prepare("SELECT $fields FROM $table WHERE id = :user_id");
         $stmt->bindParam(':user_id', $user_id);
         $stmt->execute();
         
@@ -436,11 +463,11 @@ function updateProfile() {
         }
         
         $user_id = $_SESSION['user_id'];
+        $user_role = $_SESSION['role'] ?? 'admin';
         $full_name = $input['full_name'] ?? '';
         $email = $input['email'] ?? '';
         $username = $input['username'] ?? '';
         $password = $input['password'] ?? '';
-        $confirm_password = $input['confirm_password'] ?? '';
         
         // Validate required fields
         if (empty($full_name) || empty($email) || empty($username)) {
@@ -451,11 +478,6 @@ function updateProfile() {
         
         // Validate password if provided
         if (!empty($password)) {
-            if ($password !== $confirm_password) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'error' => 'Passwords do not match']);
-                return;
-            }
             if (strlen($password) < 6) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'Password must be at least 6 characters long']);
@@ -463,8 +485,29 @@ function updateProfile() {
             }
         }
         
+        // Determine table based on user role
+        $table = '';
+        switch ($user_role) {
+            case 'admin':
+                $table = 'admins';
+                break;
+            case 'Organizer':
+                $table = 'organizers';
+                break;
+            case 'participant':
+                $table = 'participants';
+                break;
+            case 'Judge':
+                $table = 'judges';
+                break;
+            default:
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Invalid user role']);
+                return;
+        }
+        
         // Check if email or username already exists (excluding current user)
-        $checkStmt = $pdo->prepare("SELECT id FROM admins WHERE (email = :email OR username = :username) AND id != :user_id");
+        $checkStmt = $pdo->prepare("SELECT id FROM $table WHERE (email = :email OR username = :username) AND id != :user_id");
         $checkStmt->bindParam(':email', $email);
         $checkStmt->bindParam(':username', $username);
         $checkStmt->bindParam(':user_id', $user_id);
@@ -476,14 +519,33 @@ function updateProfile() {
             return;
         }
         
-        // Build update query
-        $sql = "UPDATE admins SET full_name = :full_name, email = :email, username = :username";
+        // Build update query based on role
+        $sql = "UPDATE $table SET full_name = :full_name, email = :email, username = :username";
         $params = [
             ':full_name' => $full_name,
             ':email' => $email,
             ':username' => $username,
             ':user_id' => $user_id
         ];
+        
+        // Add role-specific fields
+        if ($user_role === 'Organizer') {
+            $organization_name = $input['organization_name'] ?? '';
+            $job_title_position = $input['job_title_position'] ?? '';
+            $sql .= ", organization_name = :organization_name, job_title_position = :job_title_position";
+            $params[':organization_name'] = $organization_name;
+            $params[':job_title_position'] = $job_title_position;
+        } elseif ($user_role === 'participant') {
+            $city_country = $input['city_country'] ?? '';
+            $skills_expertise = $input['skills_expertise'] ?? '';
+            $sql .= ", city_country = :city_country, skills_expertise = :skills_expertise";
+            $params[':city_country'] = $city_country;
+            $params[':skills_expertise'] = $skills_expertise;
+        } elseif ($user_role === 'Judge') {
+            $professional_title = $input['professional_title'] ?? '';
+            $sql .= ", professional_title = :professional_title";
+            $params[':professional_title'] = $professional_title;
+        }
         
         // Add password update if provided
         if (!empty($password)) {
