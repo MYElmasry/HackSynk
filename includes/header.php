@@ -29,13 +29,13 @@ if (isset($_SESSION['full_name'])) {
           // Redirect to appropriate dashboard based on role
           $user_role = $_SESSION['role'] ?? 'participant';
           if ($user_role === 'admin') {
-              echo '<a href="../pages/dashboard.php">Admin Dashboard</a>';
+              echo '<a href="../pages/dashboard.php">Dashboard</a>';
           } elseif ($user_role === 'Organizer') {
-              echo '<a href="../pages/organizer-dashboard.php">Organizer Dashboard</a>';
+              echo '<a href="../pages/organizer-dashboard.php">Dashboard</a>';
           } elseif ($user_role === 'participant') {
-              echo '<a href="../pages/participant-dashboard.php">Participant Dashboard</a>';
+              echo '<a href="../pages/participant-dashboard.php">Dashboard</a>';
           } elseif ($user_role === 'Judge') {
-              echo '<a href="../pages/judge-dashboard.php">Judge Dashboard</a>';
+              echo '<a href="../pages/judge-dashboard.php">Dashboard</a>';
           } else {
               echo '<a href="../pages/dashboard.php">Dashboard</a>';
           }
