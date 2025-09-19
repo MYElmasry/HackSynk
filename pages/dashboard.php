@@ -65,6 +65,20 @@ $initial = strtoupper(substr($user_name, 0, 1));
                     <div class="section-header">
                         <h2>Manage Users</h2>
                         <div class="user-actions">
+                            <div class="search-filter-container">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="user-search" placeholder="Search by name or email..." onkeyup="filterUsers()">
+                                </div>
+                                <div class="filter-box">
+                                    <select id="role-filter" onchange="filterUsers()">
+                                        <option value="">All Roles</option>
+                                        <option value="participant">Participant</option>
+                                        <option value="organizer">Organizer</option>
+                                        <option value="judge">Judge</option>
+                                    </select>
+                                </div>
+                            </div>
                             <span id="total-users">Total Users: 0</span>
                             <button class="btn btn-primary" onclick="openAddUserModal()">
                                 <i class="fas fa-plus"></i> Add User

@@ -52,6 +52,9 @@ function showProfile() {
     document.getElementById('default-content').style.display = 'none';
 }
 
+// Global variable to store all users
+let allUsers = [];
+
 // Function to load users via AJAX
 function loadUsers() {
     // Show users section and hide other sections
@@ -68,7 +71,8 @@ function loadUsers() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayUsers(data.users);
+                allUsers = data.users; // Store all users globally
+                displayUsers(allUsers);
                 document.getElementById('total-users').textContent = `Total Users: ${data.total}`;
             } else {
                 tableBody.innerHTML = '<tr><td colspan="4" class="error">Error loading users: ' + data.error + '</td></tr>';
@@ -115,6 +119,39 @@ function displayUsers(users) {
         </tr>
     `;
     }).join('');
+}
+
+// Function to filter users based on search and role filter
+function filterUsers() {
+    const searchTerm = document.getElementById('user-search').value.toLowerCase().trim();
+    const roleFilter = document.getElementById('role-filter').value;
+    
+    let filteredUsers = allUsers;
+    
+    // Filter by search term (name or email)
+    if (searchTerm) {
+        filteredUsers = filteredUsers.filter(user => 
+            user.full_name.toLowerCase().includes(searchTerm) || 
+            user.email.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Filter by role
+    if (roleFilter) {
+        filteredUsers = filteredUsers.filter(user => user.role === roleFilter);
+    }
+    
+    // Display filtered results
+    displayUsers(filteredUsers);
+    
+    // Update total count
+    document.getElementById('total-users').textContent = `Total Users: ${filteredUsers.length}`;
+}
+
+// Function to reset search and filter controls
+function resetSearchAndFilter() {
+    document.getElementById('user-search').value = '';
+    document.getElementById('role-filter').value = '';
 }
 
 // ===========================================
@@ -240,6 +277,7 @@ document.getElementById('addUserForm').addEventListener('submit', function(e) {
             });
             closeModal('addUserModal');
             loadUsers(); // Refresh the users list
+            resetSearchAndFilter(); // Reset search and filter controls
         } else {
             Swal.fire({
                 title: 'Error!',
@@ -283,6 +321,7 @@ document.getElementById('editUserForm').addEventListener('submit', function(e) {
             });
             closeModal('editUserModal');
             loadUsers(); // Refresh the users list
+            resetSearchAndFilter(); // Reset search and filter controls
         } else {
             Swal.fire({
                 title: 'Error!',
@@ -395,6 +434,7 @@ function deleteUser(userId, role, userName) {
                         timer: 2000
                     });
                     loadUsers(); // Refresh the users list
+                    resetSearchAndFilter(); // Reset search and filter controls
                 } else {
                     Swal.fire({
                         title: 'Error!',
