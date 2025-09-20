@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // Import and run database setup
 require_once '../config/db_setup.php';

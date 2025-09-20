@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-Check if user is an organizer
 if ($_SESSION['role'] !== 'Organizer') {
     // Redirect to appropriate dashboard based on role
     $user_role = $_SESSION['role'] ?? 'admin';
