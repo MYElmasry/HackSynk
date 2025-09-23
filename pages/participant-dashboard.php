@@ -7,20 +7,20 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// if ($_SESSION['role'] !== 'participant') {
-//     // Redirect to appropriate dashboard based on role
-//     $user_role = $_SESSION['role'] ?? 'admin';
-//     if ($user_role === 'admin') {
-//         header('Location: dashboard.php');
-//     } elseif ($user_role === 'organizer') {
-//         header('Location: organizer-dashboard.php');
-//     } elseif ($user_role === 'Judge') {
-//         header('Location: judge-dashboard.php');
-//     } else {
-//         header('Location: ../pages/home.php');
-//     }
-//     exit();
-// }
+if ($_SESSION['role'] !== 'participant') {
+    // Redirect to appropriate dashboard based on role
+    $user_role = $_SESSION['role'] ?? 'admin';
+    if ($user_role === 'admin') {
+        header('Location: dashboard.php');
+    } elseif ($user_role === 'organizer') {
+        header('Location: organizer-dashboard.php');
+    } elseif ($user_role === 'Judge') {
+        header('Location: judge-dashboard.php');
+    } else {
+        header('Location: ../pages/home.php');
+    }
+    exit();
+}
 
 // Get user info
 $user_name = $_SESSION['full_name'] ?? 'User';
