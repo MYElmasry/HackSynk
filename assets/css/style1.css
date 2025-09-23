@@ -212,69 +212,197 @@ nav a.active {
 
 /* ====== Hackathons Section ====== */
 .hackathons {
-  padding: 40px 40px; /* padding يسار بدل center */
+  padding: 40px 40px;
   text-align: start;
 }
 
 .hackathons h2 {
   margin-bottom: 30px;
-  font-size: 1.6em; /* تم تصغيره */
+  font-size: 1.6em;
   color: var(--text-color);
 }
 
-/* Cards */
-.cards {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  width: 250px;
-  padding: 20px;
-  background-color: var(--white);
-  transition: box-shadow 0.3s;
-}
-
-.card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-}
-
-.card img {
-  width: 100%;
-  height: 100px;
-  object-fit: contain;
-  margin-bottom: 15px;
-}
-
-.card h3 {
+/* Loading and No Data States */
+.loading {
+  text-align: center;
+  padding: 40px;
   font-size: 1.1em;
-  margin: 10px 0;
-}
-
-.card p {
-  font-size: 0.9em;
-  margin-bottom: 15px;
   color: var(--text-color);
 }
 
-.card button {
-  background-color: var(--purple-500);
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  font-weight: bold;
-  color: var(--white);
-  cursor: pointer;
-  transition: background-color 0.3s;
+.no-hackathons {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1em;
+  color: #666;
 }
 
-.card button:hover {
-  background-color: var(--purple-700);
+/* Hackathons Grid */
+.hackathons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* Hackathon Card */
+.hackathon-card {
+  background-color: var(--white);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.hackathon-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hackathon-card:hover .card-image img {
+  transform: scale(1.05);
+}
+
+.no-image {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--purple-300), var(--turquoise-300));
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--white);
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.card-content {
+  padding: 25px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.card-header h3 {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-upcoming {
+  background-color: var(--yellow-500);
+  color: var(--white);
+}
+
+.status-active {
+  background-color: var(--turquoise-500);
+  color: var(--white);
+}
+
+.status-ended {
+  background-color: var(--laptop-gray);
+  color: var(--white);
+}
+
+.card-description {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 0.95em;
+}
+
+.card-details {
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: var(--text-color);
+}
+
+.detail-item strong {
+  color: var(--purple-700);
+  margin-right: 5px;
+}
+
+.card-actions {
+  text-align: center;
+}
+
+.btn-primary {
+  background-color: var(--purple-500);
+  color: var(--white);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  background-color: var(--purple-700);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(138, 99, 255, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hackathons-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .hackathons {
+    padding: 20px;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .status {
+    margin-top: 10px;
+  }
 }
 
 /* ====== User Menu ====== */

@@ -21,28 +21,20 @@ if (isset($_SESSION['full_name'])) {
  <?php include '../includes/header.php'; ?>
 
   <!-- Hackathons Section -->
-  <section class="about">
-    <div class="about-left">
-      <h3>Active and Upcoming Hackathons</h3>
-      <!-- هنا تقدر تضيف كروت hackathons -->
+  <section class="hackathons">
+    <h2>Active and Upcoming Hackathons</h2>
+    <div id="loading" class="loading">Loading hackathons...</div>
+    <div id="hackathons-grid" class="hackathons-grid">
+      <!-- Hackathons will be loaded here -->
+    </div>
+    <div id="no-hackathons" class="no-hackathons" style="display: none;">
+      <p>No hackathons available at the moment.</p>
     </div>
   </section>
   </div>
 
   <?php include '../includes/footer.php'; ?>
 
-  <script>
-    function toggleDropdown() {
-      document.getElementById("userDropdown").classList.toggle("show");
-    }
-    window.onclick = function(event) {
-      if (!event.target.matches('.user-icon')) {
-        let dropdown = document.getElementById("userDropdown");
-        if (dropdown && dropdown.classList.contains('show')) {
-          dropdown.classList.remove('show');
-        }
-      }
-    }
-  </script>
+  <script src="../assets/js/hackathons.js"></script>
 </body>
 </html>
