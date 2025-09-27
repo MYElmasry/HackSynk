@@ -129,6 +129,21 @@ function setupDatabase() {
         
         $pdo_setup->exec($sql);
         
+        // Create projects table
+        $sql = "CREATE TABLE IF NOT EXISTS projects (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            leader_name VARCHAR(100) NOT NULL,
+            project_file_path VARCHAR(500),
+            team_size INT NOT NULL DEFAULT 1,
+            hackathon_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (hackathon_id) REFERENCES hackathons(id) ON DELETE CASCADE
+        )";
+        
+        $pdo_setup->exec($sql);
+        
         // Insert default admin user if it doesn't exist
         $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'admin'");
         $checkAdmin->execute();

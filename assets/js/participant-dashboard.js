@@ -71,6 +71,9 @@ function showJoinTeam() {
 function showSubmitProject() {
     hideAllSections();
     document.getElementById('submit-project-section').style.display = 'block';
+    loadHackathonsForProjects();
+    loadMyProjects();
+    initializeLeaderAutocomplete();
 }
 
 // Function to show chat messages section
@@ -591,7 +594,345 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // Submit project form submission
+    const submitProjectForm = document.getElementById('submitProjectForm');
+    if (submitProjectForm) {
+        submitProjectForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Validate required fields
+            if (!formData.get('hackathon_id') || !formData.get('title') || !formData.get('leader_name')) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please fill in all required fields',
+                    icon: 'error'
+                });
+                return;
+            }
+            
+            fetch('../api/projects.php?action=submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    resetProjectForm();
+                    loadMyProjects();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while submitting the project',
+                    icon: 'error'
+                });
+            });
+        });
+    }
 });
+
+// ===========================================
+// PROJECT MANAGEMENT FUNCTIONS
+// ===========================================
+
+// Load hackathons for project submission
+function loadHackathonsForProjects() {
+    fetch('../api/projects.php?action=hackathons')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('project_hackathon');
+                select.innerHTML = '<option value="">Choose a hackathon...</option>';
+                
+                data.hackathons.forEach(hackathon => {
+                    const option = document.createElement('option');
+                    option.value = hackathon.id;
+                    option.textContent = `${hackathon.name} (${hackathon.start_date} - ${hackathon.end_date})`;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading hackathons:', error);
+        });
+}
+
+// Load user's projects
+function loadMyProjects() {
+    fetch('../api/projects.php?action=list')
+        .then(response => response.json())
+        .then(data => {
+            const projectsList = document.getElementById('my-projects-list');
+            
+            if (data.success && data.projects.length > 0) {
+                projectsList.innerHTML = '';
+                
+                data.projects.forEach(project => {
+                    const projectCard = createProjectCard(project);
+                    projectsList.appendChild(projectCard);
+                });
+            } else {
+                projectsList.innerHTML = '<div class="empty-state"><i class="fas fa-project-diagram"></i><h3>No Projects Yet</h3><p>You haven\'t submitted any projects yet.</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading projects:', error);
+        });
+}
+
+// Create project card element
+function createProjectCard(project) {
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    
+    const fileInfo = project.project_file_path ? 
+        `<p class="project-file"><strong>File:</strong> <a href="../${project.project_file_path}" target="_blank">Download</a></p>` : 
+        '<p class="project-file"><strong>File:</strong> No file uploaded</p>';
+    
+    card.innerHTML = `
+        <div class="project-header">
+            <h4>${project.title}</h4>
+            <span class="project-team-size">${project.team_size} member${project.team_size > 1 ? 's' : ''}</span>
+        </div>
+        <div class="project-details">
+            <p class="project-leader"><strong>Leader:</strong> ${project.leader_name}</p>
+            <p class="project-hackathon"><strong>Hackathon:</strong> ${project.hackathon_name}</p>
+            <p class="project-dates"><strong>Dates:</strong> ${project.start_date} - ${project.end_date}</p>
+            ${fileInfo}
+            <p class="project-created"><strong>Submitted:</strong> ${new Date(project.created_at).toLocaleDateString()}</p>
+        </div>
+        <div class="project-actions">
+            <button class="btn btn-danger" onclick="deleteProject(${project.id})">Delete Project</button>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Delete project function
+function deleteProject(projectId) {
+    Swal.fire({
+        title: 'Delete Project',
+        text: 'Are you sure you want to delete this project? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete!',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#d33'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../api/projects.php?action=delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ project_id: projectId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    loadMyProjects();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while deleting the project',
+                    icon: 'error'
+                });
+            });
+        }
+    });
+}
+
+// Reset project form
+function resetProjectForm() {
+    document.getElementById('submitProjectForm').reset();
+    hideLeaderSuggestions();
+}
+
+// ===========================================
+// AUTCOMPLETE FUNCTIONALITY
+// ===========================================
+
+// Initialize autocomplete for leader name
+function initializeLeaderAutocomplete() {
+    const leaderInput = document.getElementById('project_leader_name');
+    const suggestionsContainer = document.getElementById('leader_suggestions');
+    
+    if (!leaderInput || !suggestionsContainer) return;
+    
+    let searchTimeout;
+    
+    leaderInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            hideLeaderSuggestions();
+            return;
+        }
+        
+        // Debounce search
+        searchTimeout = setTimeout(() => {
+            searchParticipants(query);
+        }, 300);
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!leaderInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+            hideLeaderSuggestions();
+        }
+    });
+    
+    // Handle keyboard navigation
+    leaderInput.addEventListener('keydown', function(e) {
+        const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+        const activeSuggestion = suggestionsContainer.querySelector('.suggestion-item.active');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (activeSuggestion) {
+                activeSuggestion.classList.remove('active');
+                const next = activeSuggestion.nextElementSibling;
+                if (next) {
+                    next.classList.add('active');
+                } else {
+                    suggestions[0]?.classList.add('active');
+                }
+            } else {
+                suggestions[0]?.classList.add('active');
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (activeSuggestion) {
+                activeSuggestion.classList.remove('active');
+                const prev = activeSuggestion.previousElementSibling;
+                if (prev) {
+                    prev.classList.add('active');
+                } else {
+                    suggestions[suggestions.length - 1]?.classList.add('active');
+                }
+            } else {
+                suggestions[suggestions.length - 1]?.classList.add('active');
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeSuggestion) {
+                selectParticipant(activeSuggestion);
+            }
+        } else if (e.key === 'Escape') {
+            hideLeaderSuggestions();
+        }
+    });
+}
+
+// Search participants
+function searchParticipants(query) {
+    fetch(`../api/projects.php?action=participants&search=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayLeaderSuggestions(data.participants);
+            } else {
+                hideLeaderSuggestions();
+            }
+        })
+        .catch(error => {
+            console.error('Error searching participants:', error);
+            hideLeaderSuggestions();
+        });
+}
+
+// Display leader suggestions
+function displayLeaderSuggestions(participants) {
+    const suggestionsContainer = document.getElementById('leader_suggestions');
+    
+    if (!participants || participants.length === 0) {
+        hideLeaderSuggestions();
+        return;
+    }
+    
+    suggestionsContainer.innerHTML = '';
+    
+    participants.forEach(participant => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.className = 'suggestion-item';
+        suggestionItem.innerHTML = `
+            <div class="suggestion-name">${participant.full_name}</div>
+            <div class="suggestion-details">${participant.username} • ${participant.email}</div>
+        `;
+        
+        suggestionItem.addEventListener('click', () => selectParticipant(suggestionItem, participant));
+        suggestionItem.addEventListener('mouseenter', () => {
+            suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => item.classList.remove('active'));
+            suggestionItem.classList.add('active');
+        });
+        
+        suggestionsContainer.appendChild(suggestionItem);
+    });
+    
+    suggestionsContainer.style.display = 'block';
+}
+
+// Select participant
+function selectParticipant(suggestionElement, participant = null) {
+    const leaderInput = document.getElementById('project_leader_name');
+    
+    if (participant) {
+        leaderInput.value = participant.full_name;
+    } else {
+        const nameElement = suggestionElement.querySelector('.suggestion-name');
+        if (nameElement) {
+            leaderInput.value = nameElement.textContent;
+        }
+    }
+    
+    hideLeaderSuggestions();
+    leaderInput.focus();
+}
+
+// Hide leader suggestions
+function hideLeaderSuggestions() {
+    const suggestionsContainer = document.getElementById('leader_suggestions');
+    if (suggestionsContainer) {
+        suggestionsContainer.style.display = 'none';
+        suggestionsContainer.innerHTML = '';
+    }
+}
 
 // Initialize dashboard on page load
 document.addEventListener('DOMContentLoaded', function() {

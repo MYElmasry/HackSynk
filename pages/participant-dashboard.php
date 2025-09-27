@@ -174,10 +174,67 @@ $initial = strtoupper(substr($user_name, 0, 1));
                         <div class="section-header">
                             <h2>Submit Project</h2>
                         </div>
-                        <div class="empty-state">
-                            <i class="fas fa-upload"></i>
-                            <h3>Submit Project</h3>
-                            <p>This section is coming soon.</p>
+                        
+                        <div class="project-form-container">
+                            <form id="submitProjectForm" class="project-form" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="project_hackathon">Select Hackathon *</label>
+                                    <select id="project_hackathon" name="hackathon_id" required>
+                                        <option value="">Choose a hackathon...</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project_title">Project Title *</label>
+                                    <input type="text" id="project_title" name="title" required 
+                                           placeholder="Enter your project title" maxlength="200">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project_leader_name">Leader Name *</label>
+                                    <div class="autocomplete-container">
+                                        <input type="text" id="project_leader_name" name="leader_name" required 
+                                               placeholder="Search for a participant..." maxlength="100" autocomplete="off">
+                                        <div id="leader_suggestions" class="autocomplete-suggestions"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project_team_size">Team Size *</label>
+                                    <select id="project_team_size" name="team_size" required>
+                                        <option value="1">1 member</option>
+                                        <option value="2">2 members</option>
+                                        <option value="3">3 members</option>
+                                        <option value="4">4 members</option>
+                                        <option value="5" selected>5 members</option>
+                                        <option value="6">6 members</option>
+                                        <option value="7">7 members</option>
+                                        <option value="8">8 members</option>
+                                        <option value="9">9 members</option>
+                                        <option value="10">10 members</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project_file">Project File</label>
+                                    <input type="file" id="project_file" name="project_file" 
+                                           accept=".pdf">
+                                    <small class="form-text">Upload your project file (PDF format only)</small>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-secondary" onclick="resetProjectForm()">Reset</button>
+                                    <button type="submit" class="btn btn-primary">Submit Project</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- My Projects Section -->
+                        <div class="my-projects-section">
+                            <h3>My Projects</h3>
+                            <div id="my-projects-list" class="projects-list">
+                                <!-- Projects will be loaded here -->
+                            </div>
                         </div>
                     </div>
 

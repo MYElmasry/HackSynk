@@ -1,2 +1,4 @@
 uploads/hackathons/*
 !uploads/hackathons/.gitkeep
+uploads/projects/*
+!uploads/projects/.gitkeep
