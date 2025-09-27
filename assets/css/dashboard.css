@@ -1713,10 +1713,6 @@ textarea::placeholder {
 }
 
 
-.chat-actions {
-    display: flex;
-    gap: 10px;
-}
 
 .chat-messages {
     flex: 1;

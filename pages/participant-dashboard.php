@@ -274,11 +274,6 @@ $initial = strtoupper(substr($user_name, 0, 1));
                                             <h4 id="chat-user-name">User Name</h4>
                                         </div>
                                     </div>
-                                    <div class="chat-actions">
-                                        <button id="mark-read-btn" class="btn btn-sm btn-outline">
-                                            <i class="fas fa-check-double"></i> Mark Read
-                                        </button>
-                                    </div>
                                 </div>
                                 
                                 <div class="chat-messages" id="chat-messages">

@@ -41,10 +41,6 @@ class ChatManager {
             }
         });
         
-        // Mark read button
-        document.getElementById('mark-read-btn')?.addEventListener('click', () => {
-            this.markMessagesAsRead();
-        });
     }
     
     loadUserData() {
@@ -258,12 +254,16 @@ class ChatManager {
                     this.currentConversation = conversation;
                     this.showChatInterface(participant);
                     this.loadMessages(conversationId);
+                    // Automatically mark messages as read when conversation is selected
+                    this.markMessagesAsRead();
                 }
             });
         } else {
             this.currentConversation = conversation;
             this.showChatInterface(participant);
             this.loadMessages(conversation.id || conversation.conversation_id);
+            // Automatically mark messages as read when conversation is selected
+            this.markMessagesAsRead();
         }
     }
     
