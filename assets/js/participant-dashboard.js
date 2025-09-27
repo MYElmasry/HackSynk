@@ -36,7 +36,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
             showJoinTeam();
         } else if (navText === 'Submit Project') {
             showSubmitProject();
-        } else if (navText === 'Send Chat Message') {
+        } else if (navText === 'Chat Messages') {
             showChatMessages();
         }
     });
