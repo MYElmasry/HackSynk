@@ -43,7 +43,7 @@ $initial = strtoupper(substr($user_name, 0, 1));
             <li>
                 <a href="#" class="nav-item">
                     <i class="fas fa-comments"></i>
-                    <span>Send Chat Message</span>
+                    <span>Chat Messages</span>
                 </a>
             </li>
         </ul>

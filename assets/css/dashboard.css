@@ -23,6 +23,8 @@ body.dashboard-page {
     left: 0;
     top: 80px; /* Position below header */
     z-index: 999;
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
 .sidebar-header {

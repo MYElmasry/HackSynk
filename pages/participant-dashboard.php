@@ -291,9 +291,6 @@ $initial = strtoupper(substr($user_name, 0, 1));
                                             <i class="fas fa-paper-plane"></i>
                                         </button>
                                     </div>
-                                    <div class="chat-input-footer">
-                                        <small>Press Enter to send, Shift+Enter for new line</small>
-                                    </div>
                                 </div>
                             </div>
                         </div>
