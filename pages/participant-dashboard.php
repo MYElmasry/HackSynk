@@ -84,10 +84,57 @@ $initial = strtoupper(substr($user_name, 0, 1));
                         <div class="section-header">
                             <h2>Create Team</h2>
                         </div>
-                        <div class="empty-state">
-                            <i class="fas fa-users"></i>
-                            <h3>Create Team</h3>
-                            <p>This section is coming soon.</p>
+                        
+                        <div class="team-form-container">
+                            <form id="createTeamForm" class="team-form">
+                                <div class="form-group">
+                                    <label for="team_hackathon">Select Hackathon *</label>
+                                    <select id="team_hackathon" name="hackathon_id" required>
+                                        <option value="">Choose a hackathon...</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="team_name">Team Name *</label>
+                                    <input type="text" id="team_name" name="name" required 
+                                           placeholder="Enter your team name" maxlength="200">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="team_description">Team Description</label>
+                                    <textarea id="team_description" name="description" 
+                                              placeholder="Describe your team's goals and skills..." 
+                                              rows="4"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="team_max_participants">Maximum Participants *</label>
+                                    <select id="team_max_participants" name="max_participants" required>
+                                        <option value="2">2 members</option>
+                                        <option value="3">3 members</option>
+                                        <option value="4">4 members</option>
+                                        <option value="5" selected>5 members</option>
+                                        <option value="6">6 members</option>
+                                        <option value="7">7 members</option>
+                                        <option value="8">8 members</option>
+                                        <option value="9">9 members</option>
+                                        <option value="10">10 members</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-secondary" onclick="resetCreateTeamForm()">Reset</button>
+                                    <button type="submit" class="btn btn-primary">Create Team</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- My Teams Section -->
+                        <div class="my-teams-section">
+                            <h3>My Teams</h3>
+                            <div id="my-teams-list" class="teams-list">
+                                <!-- Teams will be loaded here -->
+                            </div>
                         </div>
                     </div>
 
@@ -96,10 +143,29 @@ $initial = strtoupper(substr($user_name, 0, 1));
                         <div class="section-header">
                             <h2>Join Team</h2>
                         </div>
-                        <div class="empty-state">
-                            <i class="fas fa-user-plus"></i>
-                            <h3>Join Team</h3>
-                            <p>This section is coming soon.</p>
+                        
+                        <div class="join-team-container">
+                            <div class="hackathon-selector">
+                                <div class="form-group">
+                                    <label for="join_hackathon">Select Hackathon</label>
+                                    <select id="join_hackathon" name="hackathon_id">
+                                        <option value="">Choose a hackathon to see available teams...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="available-teams-container" class="available-teams" style="display: none;">
+                                <h3>Available Teams</h3>
+                                <div id="available-teams-list" class="teams-list">
+                                    <!-- Teams will be loaded here -->
+                                </div>
+                            </div>
+                            
+                            <div id="no-teams-message" class="empty-state" style="display: none;">
+                                <i class="fas fa-users"></i>
+                                <h3>No Teams Available</h3>
+                                <p>No teams are available for this hackathon yet.</p>
+                            </div>
                         </div>
                     </div>
 

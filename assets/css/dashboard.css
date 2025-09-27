@@ -1248,3 +1248,143 @@ textarea::placeholder {
         max-height: 150px;
     }
 }
+
+/* Team Management Styles */
+.team-form-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.team-form {
+    max-width: 600px;
+}
+
+.my-teams-section {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.my-teams-section h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 20px;
+}
+
+.teams-list {
+    display: grid;
+    gap: 20px;
+}
+
+.team-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.team-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.team-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.team-members-count {
+    background: #CC5C36;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.team-details p {
+    margin: 8px 0;
+    color: #666;
+    line-height: 1.5;
+}
+
+.team-description {
+    font-style: italic;
+    color: #555 !important;
+}
+
+.team-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.team-actions .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.btn.disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.join-team-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.hackathon-selector {
+    margin-bottom: 30px;
+}
+
+.available-teams h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 20px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+/* Mobile Responsive for Teams */
+@media (max-width: 768px) {
+    .team-form-container,
+    .my-teams-section,
+    .join-team-container {
+        padding: 20px;
+    }
+    
+    .team-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .team-actions {
+        text-align: left;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}

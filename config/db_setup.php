@@ -102,6 +102,33 @@ function setupDatabase() {
         
         $pdo_setup->exec($sql);
         
+        // Create teams table
+        $sql = "CREATE TABLE IF NOT EXISTS teams (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            description TEXT,
+            hackathon_id INT NOT NULL,
+            max_participants INT NOT NULL DEFAULT 5,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (hackathon_id) REFERENCES hackathons(id) ON DELETE CASCADE
+        )";
+        
+        $pdo_setup->exec($sql);
+        
+        // Create team_members table
+        $sql = "CREATE TABLE IF NOT EXISTS team_members (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            team_id INT NOT NULL,
+            participant_id INT NOT NULL,
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+            FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_team_participant (team_id, participant_id)
+        )";
+        
+        $pdo_setup->exec($sql);
+        
         // Insert default admin user if it doesn't exist
         $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'admin'");
         $checkAdmin->execute();

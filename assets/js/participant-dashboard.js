@@ -56,12 +56,15 @@ function showProfile() {
 function showCreateTeam() {
     hideAllSections();
     document.getElementById('create-team-section').style.display = 'block';
+    loadHackathonsForCreate();
+    loadMyTeams();
 }
 
 // Function to show join team section
 function showJoinTeam() {
     hideAllSections();
     document.getElementById('join-team-section').style.display = 'block';
+    loadHackathonsForJoin();
 }
 
 // Function to show submit project section
@@ -272,6 +275,323 @@ window.onclick = function(event) {
 // ===========================================
 // INITIALIZATION
 // ===========================================
+
+// ===========================================
+// TEAM MANAGEMENT FUNCTIONS
+// ===========================================
+
+// Load hackathons for create team form
+function loadHackathonsForCreate() {
+    fetch('../api/teams.php?action=hackathon_teams')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('team_hackathon');
+                select.innerHTML = '<option value="">Choose a hackathon...</option>';
+                
+                data.hackathons.forEach(hackathon => {
+                    const option = document.createElement('option');
+                    option.value = hackathon.id;
+                    option.textContent = `${hackathon.name} (${hackathon.start_date} - ${hackathon.end_date})`;
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading hackathons:', error);
+        });
+}
+
+// Load hackathons for join team form
+function loadHackathonsForJoin() {
+    fetch('../api/teams.php?action=hackathon_teams')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const select = document.getElementById('join_hackathon');
+                select.innerHTML = '<option value="">Choose a hackathon to see available teams...</option>';
+                
+                data.hackathons.forEach(hackathon => {
+                    const option = document.createElement('option');
+                    option.value = hackathon.id;
+                    option.textContent = `${hackathon.name} (${hackathon.start_date} - ${hackathon.end_date})`;
+                    select.appendChild(option);
+                });
+                
+                // Add event listener for hackathon selection
+                select.addEventListener('change', function() {
+                    if (this.value) {
+                        loadAvailableTeams(this.value);
+                    } else {
+                        hideAvailableTeams();
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading hackathons:', error);
+        });
+}
+
+// Load available teams for selected hackathon
+function loadAvailableTeams(hackathonId) {
+    fetch(`../api/teams.php?action=list&hackathon_id=${hackathonId}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('available-teams-container');
+            const noTeamsMessage = document.getElementById('no-teams-message');
+            const teamsList = document.getElementById('available-teams-list');
+            
+            if (data.success && data.teams.length > 0) {
+                teamsList.innerHTML = '';
+                
+                data.teams.forEach(team => {
+                    const teamCard = createTeamCard(team, true);
+                    teamsList.appendChild(teamCard);
+                });
+                
+                container.style.display = 'block';
+                noTeamsMessage.style.display = 'none';
+            } else {
+                container.style.display = 'none';
+                noTeamsMessage.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading teams:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to load teams',
+                icon: 'error'
+            });
+        });
+}
+
+// Hide available teams section
+function hideAvailableTeams() {
+    document.getElementById('available-teams-container').style.display = 'none';
+    document.getElementById('no-teams-message').style.display = 'none';
+}
+
+// Load user's teams
+function loadMyTeams() {
+    fetch('../api/teams.php?action=my_teams')
+        .then(response => response.json())
+        .then(data => {
+            const teamsList = document.getElementById('my-teams-list');
+            
+            if (data.success && data.teams.length > 0) {
+                teamsList.innerHTML = '';
+                
+                data.teams.forEach(team => {
+                    const teamCard = createTeamCard(team, false);
+                    teamsList.appendChild(teamCard);
+                });
+            } else {
+                teamsList.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><h3>No Teams Yet</h3><p>You haven\'t joined any teams yet.</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading my teams:', error);
+        });
+}
+
+// Create team card element
+function createTeamCard(team, showJoinButton = false) {
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    
+    const memberNames = team.member_names ? team.member_names.split(',').join(', ') : 'No members yet';
+    const isFull = team.current_members >= team.max_participants;
+    
+    card.innerHTML = `
+        <div class="team-header">
+            <h4>${team.name}</h4>
+            <span class="team-members-count">${team.current_members}/${team.max_participants} members</span>
+        </div>
+        <div class="team-details">
+            <p class="team-description">${team.description || 'No description provided'}</p>
+            <p class="team-hackathon"><strong>Hackathon:</strong> ${team.hackathon_name}</p>
+            <p class="team-members"><strong>Members:</strong> ${memberNames}</p>
+        </div>
+        <div class="team-actions">
+            ${showJoinButton ? 
+                `<button class="btn btn-primary ${isFull ? 'disabled' : ''}" 
+                         onclick="joinTeam(${team.id})" 
+                         ${isFull ? 'disabled' : ''}>
+                    ${isFull ? 'Team Full' : 'Join Team'}
+                </button>` : 
+                `<button class="btn btn-danger" onclick="leaveTeam(${team.id})">Leave Team</button>`
+            }
+        </div>
+    `;
+    
+    return card;
+}
+
+// Join team function
+function joinTeam(teamId) {
+    Swal.fire({
+        title: 'Join Team',
+        text: 'Are you sure you want to join this team?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, join!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../api/teams.php?action=join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ team_id: teamId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    // Refresh the teams list
+                    const hackathonSelect = document.getElementById('join_hackathon');
+                    if (hackathonSelect.value) {
+                        loadAvailableTeams(hackathonSelect.value);
+                    }
+                    loadMyTeams();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while joining the team',
+                    icon: 'error'
+                });
+            });
+        }
+    });
+}
+
+// Leave team function
+function leaveTeam(teamId) {
+    Swal.fire({
+        title: 'Leave Team',
+        text: 'Are you sure you want to leave this team?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, leave!',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#d33'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../api/teams.php?action=leave', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ team_id: teamId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    // Refresh the teams list
+                    loadMyTeams();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while leaving the team',
+                    icon: 'error'
+                });
+            });
+        }
+    });
+}
+
+// Reset create team form
+function resetCreateTeamForm() {
+    document.getElementById('createTeamForm').reset();
+}
+
+// ===========================================
+// FORM SUBMISSION HANDLERS
+// ===========================================
+
+// Create team form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const createTeamForm = document.getElementById('createTeamForm');
+    if (createTeamForm) {
+        createTeamForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const teamData = Object.fromEntries(formData.entries());
+            
+            // Convert max_participants to integer
+            teamData.max_participants = parseInt(teamData.max_participants);
+            teamData.hackathon_id = parseInt(teamData.hackathon_id);
+            
+            fetch('../api/teams.php?action=create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(teamData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: data.message,
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    resetCreateTeamForm();
+                    loadMyTeams();
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.error,
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while creating the team',
+                    icon: 'error'
+                });
+            });
+        });
+    }
+});
 
 // Initialize dashboard on page load
 document.addEventListener('DOMContentLoaded', function() {
