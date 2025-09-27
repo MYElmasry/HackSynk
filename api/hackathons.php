@@ -6,13 +6,6 @@ require_once '../config/db_setup.php';
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-    exit();
-}
-
 // Setup database (creates tables if they don't exist)
 setupDatabase();
 
