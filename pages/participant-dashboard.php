@@ -241,12 +241,66 @@ $initial = strtoupper(substr($user_name, 0, 1));
                     <!-- Chat Messages Section -->
                     <div id="chat-messages-section" class="section" style="display: none;">
                         <div class="section-header">
-                            <h2>Send Chat Message</h2>
+                            <h2>Chat Messages</h2>
+                            <div class="chat-controls">
+                                <button id="refresh-participants" class="btn btn-secondary">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                            </div>
                         </div>
-                        <div class="empty-state">
-                            <i class="fas fa-comments"></i>
-                            <h3>Send Chat Message</h3>
-                            <p>This section is coming soon.</p>
+                        
+                        <div class="chat-container">
+                            <!-- Participants List (Right Side) -->
+                            <div class="participants-panel">
+                                <div class="participants-header">
+                                    <h3>Participants</h3>
+                                </div>
+                                <div class="participants-search">
+                                    <input type="text" id="participant-search" placeholder="Search participants...">
+                                </div>
+                                <div class="participants-list" id="participants-list">
+                                    <!-- Participants will be loaded here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Area (Left Side) -->
+                            <div class="chat-area">
+                                <div class="chat-header" id="chat-header" style="display: none;">
+                                    <div class="chat-user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-details">
+                                            <h4 id="chat-user-name">User Name</h4>
+                                        </div>
+                                    </div>
+                                    <div class="chat-actions">
+                                        <button id="mark-read-btn" class="btn btn-sm btn-outline">
+                                            <i class="fas fa-check-double"></i> Mark Read
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-messages" id="chat-messages">
+                                    <div class="no-conversation">
+                                        <i class="fas fa-comments"></i>
+                                        <h3>Select a participant to start chatting</h3>
+                                        <p>Choose someone from the participants list to begin a conversation</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-input-container" id="chat-input-container" style="display: none;">
+                                    <div class="chat-input-wrapper">
+                                        <input type="text" id="message-input" placeholder="Type your message..." maxlength="1000">
+                                        <button id="send-message-btn" class="btn btn-primary">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                    <div class="chat-input-footer">
+                                        <small>Press Enter to send, Shift+Enter for new line</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -316,6 +370,20 @@ $initial = strtoupper(substr($user_name, 0, 1));
     <!-- Footer -->
     <?php include '../includes/footer.php'; ?>
 
+    <!-- Data for JavaScript -->
+    <script id="user-data" type="application/json">
+        <?php
+        echo json_encode([
+            'id' => $_SESSION['user_id'],
+            'full_name' => $_SESSION['full_name'],
+            'username' => $_SESSION['username'],
+            'email' => $_SESSION['email']
+        ]);
+        ?>
+    </script>
+    
+
     <script src="../assets/js/participant-dashboard.js"></script>
+    <script src="../assets/js/chat.js"></script>
 </body>
 </html>

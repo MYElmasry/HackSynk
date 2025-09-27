@@ -144,6 +144,36 @@ function setupDatabase() {
         
         $pdo_setup->exec($sql);
         
+        // Create conversations table for chat
+        $sql = "CREATE TABLE IF NOT EXISTS conversations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            participant1_id INT NOT NULL,
+            participant2_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (participant1_id) REFERENCES participants(id) ON DELETE CASCADE,
+            FOREIGN KEY (participant2_id) REFERENCES participants(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_conversation (participant1_id, participant2_id)
+        )";
+        
+        $pdo_setup->exec($sql);
+        
+        // Create messages table for chat messages
+        $sql = "CREATE TABLE IF NOT EXISTS messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            conversation_id INT NOT NULL,
+            sender_id INT NOT NULL,
+            message TEXT NOT NULL,
+            message_type ENUM('text', 'file', 'image') DEFAULT 'text',
+            file_path VARCHAR(500),
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+            FOREIGN KEY (sender_id) REFERENCES participants(id) ON DELETE CASCADE
+        )";
+        
+        $pdo_setup->exec($sql);
+        
         // Insert default admin user if it doesn't exist
         $checkAdmin = $pdo_setup->prepare("SELECT COUNT(*) FROM admins WHERE username = 'admin'");
         $checkAdmin->execute();
